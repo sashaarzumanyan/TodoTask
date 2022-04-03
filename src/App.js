@@ -1,6 +1,8 @@
 import { Grid } from "@mui/material";
 import React from "react";
+import ModalWindow from "./Components/ModalWindow";
 import DoingList from "./pages/DoingList";
+import DoneList from "./pages/DoneList";
 import Header from "./pages/Header";
 import TodoList from "./pages/TodoList";
 
@@ -16,9 +18,10 @@ function App() {
           <DoingList />
         </Grid>
         <Grid item xs={4}>
-          <DoingList />
+          <DoneList/>
         </Grid>
       </Grid>
+      <ModalWindow  />
     </>
   );
 }

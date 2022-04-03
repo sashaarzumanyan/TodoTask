@@ -1,15 +1,17 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import {
+    Alert,
     Box,
     Button,
     FormControl,
     MenuItem,
     Modal,
+    Snackbar,
     TextField,
     Typography
 } from '@mui/material'
-import { useDispatch } from 'react-redux';
-import { addTaskAction } from '../redux/actions';
+import { useDispatch, useSelector } from 'react-redux';
+import { addTaskAction, clearTaskFields, setOpen } from '../redux/actions';
 import { useForm } from "react-hook-form";
 
 const modalStyle = {
@@ -29,84 +31,112 @@ const modalStyle = {
 const todoStatus = ['Todo', 'Doing', 'Done'];
 const todoPriority = ['Low', 'Medium', 'High'];
 
-const ModalWindow = ({ open, close, title, description, editStatus, editPriority }) => {
-    const { register, handleSubmit, watch, reset } = useForm()
+const ModalWindow = () => {
+    const [error, setError] = useState(false)
+    const [success, setSuccess] = useState(false)
+    const { register, handleSubmit, reset } = useForm()
+    const { config, editTodo, todoList } = useSelector(state => state)
     const dispatch = useDispatch()
-    const [status, setStatus] = useState(editStatus)
-    const [priority, setPriority] = useState('')
-
-
-    const handleChangeStatus = (event) => {
-        setStatus(event.target.value)
-    }
-
-    const handleChangePriority = (event) => {
-        setPriority(event.target.value)
+    const { title, description, priority, status } = editTodo
+    useEffect(() => {
+        reset({ title: `${title ? title : ""}`, description: `${description ? description : ''}` })
+        setSuccess(false)
+    }, [editTodo,reset,description,title])
+    const handleClose = () => {
+        dispatch(setOpen())
+        dispatch(clearTaskFields())
+        reset({ title: '', description: '' })
+        setError(false)
     }
 
     const addTask = (data) => {
-        dispatch(addTaskAction({
-            id: Math.random(),
-            ...data,
-            status: status,
-            priority: priority
-        }))
-        reset({title: '',description: ''})
+        const editArray = todoList.filter(e => e.id !== editTodo.id)
+        editArray.push({ id: Math.random(), ...data })
+        if (data.title !== editTodo.title || data.status !== editTodo.status) {
+            dispatch(addTaskAction(editArray))
+            dispatch(setOpen())
+            setSuccess(true)
+        } else {
+            setError(true)
+        }
+        console.log(data);
     }
-
     return (
-        <Modal
-            open={open}
-            onClose={close}
-        >
-            <Box sx={modalStyle}>
-                <FormControl>
-                    <Typography variant='h4'>Add Task</Typography>
-                    <TextField
-                        margin="normal" label="Title"
-                        {...register("title", { required: true })}
-                        value={title}
-                    />
-                    <TextField
-                        margin="normal" label="Description"
-                        {...register("description")}
-                        value={description}
-                    />
-                    {/* setStatus */}
-                    <TextField
-                        margin="normal"
-                        select
-                        label="Status"
-                        value={editStatus}
-                        onChange={handleChangeStatus}
-                    >
-                        {todoStatus.map((option) => (
-                            <MenuItem key={option} value={option}>
-                                {option}
-                            </MenuItem>
-                        ))}
-                    </TextField>
-                    {/* setPriority */}
-                    <TextField
-                        margin="normal"
-                        select
-                        label="Priority"
-                        value={editPriority}
-                        onChange={handleChangePriority}
-                    >
-                        {todoPriority.map((option) => (
-                            <MenuItem key={option} value={option}>
-                                {option}
-                            </MenuItem>
-                        ))}
-                    </TextField>
-                </FormControl>
-                <Box sx={{ display: 'flex', justifyContent: 'space-evenly' }}>
-                    <Button variant="contained" color="success" onClick={handleSubmit(addTask)}>Add</Button>
-                    <Button variant="contained" color="error" onClick={close}>Close</Button>
+        <>
+            <Modal
+                open={config}
+                onClose={handleClose}
+            >
+                <Box sx={modalStyle}>
+                    <FormControl>
+                        <Typography variant='h4'>Add Task</Typography>
+                        <TextField
+                            margin="normal" label="Title"
+                            {...register("title", { required: true })}
+                            defaultValue={title}
+                        />
+                        <TextField
+                            margin="normal" label="Description"
+                            {...register("description", { required: true })}
+                            defaultValue={description}
+                        />
+                        {/* setStatus */}
+                        <TextField
+                            margin="normal"
+                            select
+                            label="Status"
+                            defaultValue={status}
+                            {...register("status", { required: true })}
+                        >
+                            {todoStatus.map((option) => (
+                                <MenuItem key={option} value={option}>
+                                    {option}
+                                </MenuItem>
+                            ))}
+                        </TextField>
+                        {/* setPriority */}
+                        <TextField
+                            margin="normal"
+                            select
+                            label="Priority"
+                            defaultValue={priority}
+                            {...register("priority", { required: true })}
+                        >
+                            {todoPriority.map((option) => (
+                                <MenuItem key={option} value={option}>
+                                    {option}
+                                </MenuItem>
+                            ))}
+                        </TextField>
+                    </FormControl>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-evenly' }}>
+                        <Button variant="contained" color="success" onClick={handleSubmit(addTask)}>{editTodo.id ? "EDIT" : "Add"}</Button>
+                        <Button variant="contained" color="error" onClick={handleClose}>Close</Button>
+                    </Box>
                 </Box>
-            </Box>
-        </Modal>
+
+            </Modal>
+            {error ?
+                <Snackbar
+                    open={error}
+                    autoHideDuration={200}
+                >
+                    <Alert variant="filled" severity="error" sx={{ width: '100%' }}>
+                        Please edit task
+                    </Alert>
+                </Snackbar> : null
+            }
+            {success ?
+                <Snackbar
+                    open={success}
+                    autoHideDuration={200}
+                >
+                    <Alert variant="filled" severity="success" sx={{ width: '100%' }}>
+                        Task added success
+                    </Alert>
+                </Snackbar> : null
+            }
+        </>
     )
 }
 

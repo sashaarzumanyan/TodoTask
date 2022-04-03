@@ -1,14 +1,21 @@
-import { Accordion, AccordionDetails, AccordionSummary, Button, Card, CardContent, Chip, Stack, Typography } from '@mui/material'
+import React from 'react'
+import {
+    Accordion,
+    AccordionDetails,
+    AccordionSummary,
+    Button,
+    Card,
+    CardContent,
+    Chip,
+    Stack,
+    Typography
+} from '@mui/material'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import EditIcon from '@mui/icons-material/Edit';
-import React, { useState } from 'react'
-import ModalWindow from './ModalWindow';
+import DeleteIcon from '@mui/icons-material/Delete';
 
-const TodoCard = ({ title, description, priority, status }) => {
-    const [open, setOpen] = useState(false)
-    const handleClose = () => {
-        setOpen(!open)
-    }
+
+const TodoCard = ({ title, description, priority, handleEdit,handleDelete }) => {
 
     return (
         <Card sx={{ mb: 3 }}>
@@ -20,10 +27,20 @@ const TodoCard = ({ title, description, priority, status }) => {
                         variant="contained"
                         startIcon={<EditIcon />}
                         size='small'
-                        sx={{ position: 'relative', left: '55px' }}
-                        onClick={() => setOpen(!open)}
+                        sx={{ borderRadius: 8 }}
+                        onClick={handleEdit}
                     >
                         Edit
+                    </Button>
+                    <Button
+                        color='error'
+                        variant="contained"
+                        startIcon={<DeleteIcon />}
+                        size='small'
+                        sx={{ borderRadius: 8 }}
+                        onClick={handleDelete}
+                    >
+                        Delete
                     </Button>
                 </Stack>
                 <Accordion sx={{ mt: 2 }}>
@@ -39,14 +56,6 @@ const TodoCard = ({ title, description, priority, status }) => {
                     </AccordionDetails>
                 </Accordion>
             </CardContent>
-            <ModalWindow 
-                open={open}
-                close={handleClose}
-                title={title}
-                description={description}
-                editStatus={status}
-                editPriority={priority}
-            />
         </Card>
     )
 }

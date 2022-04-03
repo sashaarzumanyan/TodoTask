@@ -1,20 +1,18 @@
-import React, { useState } from 'react'
-import { AppBar, Button, MenuItem, Modal, TextField, Toolbar, Typography } from '@mui/material'
+import React from 'react'
+import { AppBar, Button, Toolbar, } from '@mui/material'
 import { useDispatch } from 'react-redux'
-import { Box } from '@mui/system'
-import ModalWindow from '../Components/ModalWindow';
+import { clearTaskFields, setOpen } from '../redux/actions';
 
 
 
 const Header = () => {
-    const [open, setOpen] = useState(false)
+    
     const dispatch = useDispatch()
     const handleOpen = () => {
-        setOpen(!open)
+        dispatch(setOpen())
+        dispatch(clearTaskFields())
     }
-    const handleClose = () => {
-        setOpen(!open)
-    }
+     
 
     return (
         <>
@@ -25,7 +23,6 @@ const Header = () => {
                     </Button>
                 </Toolbar>
             </AppBar>
-            <ModalWindow open={open} close={handleClose} />
         </>
     )
 }

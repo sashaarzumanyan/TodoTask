@@ -1,10 +1,20 @@
-import React from 'react'
 import { Card, Grid, Typography } from '@mui/material'
-import { useSelector } from 'react-redux'
+import React from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 import TodoCard from '../Components/TodoCard'
+import { deleteTask, editTask, setOpen } from '../redux/actions'
 
-const DoneList = () => {
-    const todoList = useSelector(state => state)
+const TodoList = () => {
+    const {todoList} = useSelector(state => state)
+    const dispatch = useDispatch()
+    
+    const handleEdit = (value) => {
+        dispatch(setOpen({}))
+        dispatch(editTask({ ...value}))
+    }
+    const handleDelete = (id) =>{
+        dispatch(deleteTask(id))
+    }
     return (
         <Card sx={{ bgcolor: 'text.disabled', position: 'relative', top: '20%' }} >
             <Typography
@@ -16,17 +26,15 @@ const DoneList = () => {
                     {todoList.map((todos) => {
                         if (todos.status === 'Done') {
                             return <TodoCard
-                                id={todos.id}
                                 key={todos.id}
                                 title={todos.title}
                                 description={todos.description}
-                                status={todos.status}
                                 priority={todos.priority}
+                                handleEdit={()=> handleEdit(todos)}
+                                handleDelete={()=>handleDelete(todos.id)}
                             />
-                        }else{
-                            <Typography>List is Empaty</Typography>
                         }
-                    }
+                    }                        
                     )}
                 </Grid>
             </Grid>
@@ -34,4 +42,4 @@ const DoneList = () => {
     )
 }
 
-export default DoneList
+export default TodoList

@@ -2,14 +2,14 @@ const initialState=[
     {
         id: Math.random(),
         title: 'learn Python',
-        description: 'Lorem Ipsum dolor',
+        description: 'Lorem ',
         status: 'Todo',
         priority: 'Low'
     },
     {
         id: Math.random(),
         title: 'learn C++',
-        description: 'Lorem Ipsum dolor',
+        description: 'Lorem Ipsum ',
         status: 'Doing',
         priority: 'Low'
     },
@@ -26,10 +26,11 @@ const todoReducer = (state = initialState, action) => {
     switch (action.type) {
         case "ADD_TASK":
             return [
-                ...state,
-                action.payload
+                ...action.payload
             ]
-
+        case "DELETE_TASK":
+            const newArray = state.filter(e=> e.id !== action.payload)
+            return newArray
         default:
             return state
     }
